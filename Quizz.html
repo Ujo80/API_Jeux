@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FreeToGame API</title>
+    <link rel="stylesheet" href="styles1.css">
+</head>
+<body>
+    <div class="container">
+        <h1><center>Quizz sur l'année de sortie</center></h1>
+    </div>
+    <button onclick="sendFetchRequestr()">Gener un jeu</button>
+    <input type="number" id="yearInput" name="yearInput" min="1900" max="2100"placeholder="Entrez une date...">
+    <button id="comparer">Comparer l'année</button>
+    <p id="resultat"></p>
+    <button id="Menu">Revenir au menu principal </button>
+    <div id="gamesList" class="games-list"></div>
+    
+</body>
+<script>
+    let anneeSortie
+    let anneeSaisie
+    const gamesListElement = document.getElementById('gamesList');
+
+    document.getElementById('Menu').addEventListener('click', function() {
+            // Changer la page vers new_page.html
+            window.location.href = 'API.html';
+        });
+
+    function sendFetchRequestr() {
+            gamesListElement.innerHTML = "";
+            fetch(`aleatoire.php`)
+            .then(response => response.json())
+                .then(data => {
+                    displayGame(data);
+                })
+                .catch(error => {
+                    console.error('Une erreur est survenue : ', error);
+                });
+    }
+    function displayGame(games) {
+            const dateSortie = games.release_date; // Date de sortie du jeu (exemple)
+                // Création d'un objet Date à partir de la chaîne de date
+                const dateObj = new Date(dateSortie);
+                // Obtenir l'année de la date
+                anneeSortie = dateObj.getFullYear();
+
+                const gameDetails = `
+                    <div class="game-card">
+                        <img src="${games.thumbnail}" alt="Game Thumbnail">
+                        <div class="game-info">
+                            <h2 class="game-title">${games.title}</h2>
+                            <p class="game-id">ID: ${games.id}</p>
+                            <p class="game-description">Description: ${games.short_description}</p>
+                            <p class="game-platform">Plateforme: ${games.platform}</p>
+                            <p class="game-genre">Genre: ${games.genre}</p>
+                            <a class="game-url" href="${games.game_url}" target="_blank">Voir plus</a>
+                            <p class="game-system-requirement">Configuration requise :</p>
+                            <ul class="system-requirements">
+                                <li>OS: ${games.minimum_system_requirements.os}</li>
+                                <li>Processeur: ${games.minimum_system_requirements.processor}</li>
+                                <li>Mémoire: ${games.minimum_system_requirements.memory}</li>
+                                <li>Graphiques: ${games.minimum_system_requirements.graphics}</li>
+                                <li>Stockage: ${games.minimum_system_requirements.storage}</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                // <p class="game-release">Annee de sortie: ${anneeSortie}</p>
+                
+                
+                gamesListElement.innerHTML += gameDetails;
+        }
+        
+        document.getElementById('comparer').addEventListener('click', function() {
+            const dateSaisie = document.getElementById('yearInput').value;
+            anneeSaisie = new Date(dateSaisie).getFullYear();
+            
+
+            if (anneeSaisie === anneeSortie) {
+                document.getElementById('resultat').textContent = "GG";
+            } 
+            if (anneeSaisie > anneeSortie) {
+                document.getElementById('resultat').textContent = "Le jeu est plus ancien que ca !";
+            }
+            if (anneeSaisie < anneeSortie) {
+                document.getElementById('resultat').textContent = "Le jeu est plus récent voyons !";
+            }
+        });
+        
+</script>
+</html>

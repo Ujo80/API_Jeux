@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FreeToGame API</title>
+    <link rel="stylesheet" href="styles1.css">
+</head>
+<body>
+    <div class="container">
+        <h1><center>Liste de jeux gratuits</center></h1>
+        <button onclick="loadGames()">liste des jeux</button>
+        <button onclick="sendFetchRequest()">tri par ordre alphabetique</button>
+        <button onclick="sendFetchRequestd()">tri par ordre chronologique</button>
+        <button onclick="sendFetchRequestp()">tri par pertinence</button>
+        <button onclick="BDD()">Remplir la base de donnée</button>
+        <button id="Quizz">Quizz sur la date du jeu </button>
+        <button id="Quizz_nom">Quizz sur le nom du jeu </button>
+
+        <div id="gamesList" class="games-list"></div>
+    </div>
+    <script>
+        document.getElementById('Quizz').addEventListener('click', function() {
+            // Changer la page vers new_page.html
+            window.location.href = 'Quizz.html';
+        });
+
+        document.getElementById('Quizz_nom').addEventListener('click', function() {
+            // Changer la page vers new_page.html
+            window.location.href = 'Quizz_nom.html';
+        });
+
+        function sendFetchRequest() {
+            gamesListElement.innerHTML = "";
+            fetch(`tri_alphabetique.php`)
+            .then(response => response.json())
+                .then(data => {
+                    displayGames(data);
+                })
+                .catch(error => {
+                    console.error('Une erreur est survenue : ', error);
+                });
+        }
+        function sendFetchRequestd() {
+            gamesListElement.innerHTML = "";
+            fetch(`tri_date.php`)
+            .then(response => response.json())
+                .then(data => {
+                    displayGames(data);
+                })
+                .catch(error => {
+                    console.error('Une erreur est survenue : ', error);
+                });
+        }
+        function sendFetchRequestp() {
+            gamesListElement.innerHTML = "";
+            fetch(`tri_pertinence.php`)
+            .then(response => response.json())
+                .then(data => {
+                    displayGames(data);
+                })
+                .catch(error => {
+                    console.error('Une erreur est survenue : ', error);
+                });
+        }
+        function sendFetchRequestr() {
+            gamesListElement.innerHTML = "";
+            fetch(`aleatoire.php`)
+            .then(response => response.json())
+                .then(data => {
+                    displayGame(data);
+                })
+                .catch(error => {
+                    console.error('Une erreur est survenue : ', error);
+                });
+        
+        }
+        // function BDD() {
+        //     fetch(`BDD.php`);
+        // }
+        
+    </script>
+
+    <script>
+        const gamesListElement = document.getElementById('gamesList');
+
+        function loadGames() {
+            gamesListElement.innerHTML = "";
+            fetch(`script.php`)
+                .then(response => response.json())
+                .then(data => {
+                    displayGames(data);
+                })
+                .catch(error => {
+                    console.error('Une erreur est survenue : ', error);
+                });
+        }
+        function displayGames(games) {
+            games.forEach(game => {
+                const gameDetails = `
+                    <div class="game-card">
+                        <img src="${game.thumbnail}" alt="Game Thumbnail">
+                        <div class="game-info">
+                            <h2 class="game-title">${game.title}</h2>
+                            <p class="game-id">ID: ${game.id}</p>
+                            <p class="game-description">Description: ${game.short_description}</p>
+                            <p class="game-platform">Plateforme: ${game.platform}</p>
+                            <p class="game-genre">Genre: ${game.genre}</p>
+                            <p class="game-release">Date de sortie: ${game.release_date}</p>
+
+                            <a class="game-url" href="${game.game_url}" target="_blank">Voir plus</a>
+                        </div>
+                    </div>
+                `;
+                gamesListElement.innerHTML += gameDetails;
+            });
+        }
+        
+        //window.onload = loadGames;
+    </script>
+</body>
+</html>

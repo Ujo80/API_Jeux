@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Devinez le jeu</title>
+    <link rel="stylesheet" href="styles1.css">
+    
+</head>
+<body>
+    <h1>Devinez le jeu</h1>
+    <button id="Menu">Revenir au menu principal </button>
+    <div id="gamesList"></div>
+    
+
+    <script>
+        document.getElementById('Menu').addEventListener('click', function() {
+            // Changer la page vers new_page.html
+            window.location.href = 'API.html';
+        });
+        function removePunctuationAndSpaces(str) {
+            return str.replace(/([^\w]|s$)/gi, '').toLowerCase();        }
+
+        function displayGames(games) {
+            games.forEach(game => {
+                const gameDetails = `
+                    <div class="game-card">
+                        <img src="${game.thumbnail}" alt="Game Thumbnail">
+                        <div class="game-info">
+                            <input class="game-title-input" type="text" placeholder="Devinez le jeu...">
+                            <button class="validate-btn">Valider</button>
+                            <p class="game-id">ID: ${game.id}</p>
+                            <p class="game-description">${game.short_description}</p>
+                            <p class="game-platform">Plateforme: ${game.platform}</p>
+                            <p class="game-genre">Genre: ${game.genre}</p>
+                            <p class="game-release">Date de sortie: ${game.release_date}</p>
+                            <a class="game-url" href="${game.game_url}" target="_blank">Voir plus</a>
+                            <div class="result"></div>
+                        </div>
+                    </div>
+                `;
+
+                // Ajouter le jeu à la liste
+                const jeuElement = document.createElement('div');
+                jeuElement.classList.add('game-card');
+                jeuElement.innerHTML = gameDetails;
+                document.getElementById('gamesList').appendChild(jeuElement);
+
+                // Récupérer le bouton Valider et ajouter un gestionnaire d'événement
+                const validateBtn = jeuElement.querySelector('.validate-btn');
+                validateBtn.addEventListener('click', () => {
+                    const userInput = removePunctuationAndSpaces(jeuElement.querySelector('.game-title-input').value);
+                    const gameTitle = removePunctuationAndSpaces(game.title);
+                    const resultSection = jeuElement.querySelector('.result');
+
+                    if (userInput === gameTitle) {
+                        resultSection.textContent = 'Bravo, vous avez deviné correctement le jeu !';
+                        resultSection.classList.add('correct');
+                    } else {
+                        resultSection.textContent = 'Désolé, la réponse est incorrecte. Essayez encore.';
+                        resultSection.classList.add('incorrect');
+                    }
+
+                    resultSection.style.display = 'block';
+                });
+            });
+        }
+
+        // Récupérer les jeux depuis le script PHP qui floute les titres des jeux dans les descriptions
+        fetch('game_details.php')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('La requête a échoué');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Afficher les jeux avec les titres floutés
+                displayGames(data);
+            })
+            .catch(error => {
+                console.error('Erreur :', error);
+                // Gérer les erreurs de la requête ici
+            });
+    </script>
+</body>
+</html>
